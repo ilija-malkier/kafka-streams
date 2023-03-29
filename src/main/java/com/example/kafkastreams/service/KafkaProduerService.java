@@ -11,6 +11,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static com.example.kafkastreams.config.Constants.TOPIC_NAME;
 
@@ -27,6 +28,14 @@ public class KafkaProduerService {
     @Bean
     public Consumer<KStream<String,String>> process(){
         return (x)->x.foreach((k,v)->System.out.format(k+" - "+ v));
+    }
+
+    @Bean
+    public Function<KStream<String,String>,KStream<String,String>> forwardingFunction(){
+        return (stringStringKStream -> {
+            stringStringKStream.foreach((k,v)->System.out.println("Recived "+ k+" "+v));
+            return stringStringKStream;
+        });
     }
 
 }

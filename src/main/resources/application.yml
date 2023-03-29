@@ -1,19 +1,16 @@
 
 spring:
   kafka:
-    producer:
-      bootstrap-servers: localhost:29092
-      client-id: rest-producer
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer:  org.springframework.kafka.support.serializer.JsonSerializer
-      properties:
-        spring.json.add.type.headers: false
   cloud:
     stream:
       function:
-       definition: process
+       definition: forwardingFunction;process
       bindings:
           process-in-0:
+            destination: topic1
+          forwardingFunction-in-0:
+            destination: topic2
+          forwardingFunction-out-0:
             destination: topic1
       kafka:
         bindings:
@@ -22,9 +19,22 @@ spring:
               configuration:
                 value:
                   deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          forwardingFunction-in-0:
+            consumer:
+              configuration:
+                value:
+                  deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          forwardingFunction-out-0:
+            producer:
+              configuration:
+                value:
+                  serializer: org.apache.kafka.common.serialization.StringSerializer
+
+
+
         binder:
           brokers: localhost:29092
   application:
     name: kafka-streams-app
-server:
+
   port: 8081
